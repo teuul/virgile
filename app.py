@@ -11,11 +11,25 @@ st.set_page_config(page_title="Virgile", page_icon="💼")
 
 # --- 1. SECURE CREDENTIALS LOADING ---
 hf_token = st.secrets.get("HF_TOKEN")
-gcp_info = st.secrets.get("gcp_service_account")
+gcp_secret = st.secrets.get("gcp_service_account")
 
-if not hf_token or not gcp_info:
+if not hf_token or not gcp_secret:
     st.error("Missing credentials in Streamlit secrets!")
     st.stop()
+
+# Explicitly re-constructing the dictionary to guarantee required OAuth endpoints are mapped
+gcp_info = {
+    "type": gcp_secret.get("type"),
+    "project_id": gcp_secret.get("project_id"),
+    "private_key_id": gcp_secret.get("private_key_id"),
+    "private_key": gcp_secret.get("private_key").replace("\\n", "\n") if gcp_secret.get("private_key") else None,
+    "client_email": gcp_secret.get("client_email"),
+    "client_id": gcp_secret.get("client_id"),
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": gcp_secret.get("client_x509_cert_url")
+}
 
 client = OpenAI(base_url="https://router.huggingface.co/v1", api_key=hf_token)
 
@@ -27,7 +41,7 @@ def load_context_from_gdrive():
     
     # Locate all PDFs inside your shared Google Drive folder
     # Note: Replace 'YOUR_FOLDER_ID' with the string of numbers/letters from your GDrive folder URL
-    folder_id = "YOUR_FOLDER_ID" 
+    folder_id = "13s9S8oOyCa2IqS6xeXyqdMdxTusQQN_E" 
     query = f"'{folder_id}' in parents and mimeType='application/pdf' and trashed=false"
     
     results = drive_service.files().list(q=query, fields="files(id, name)").execute()
