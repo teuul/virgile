@@ -41,7 +41,7 @@ def load_context_from_gdrive():
     
     # Locate all PDFs inside your shared Google Drive folder
     # Note: Replace 'YOUR_FOLDER_ID' with the string of numbers/letters from your GDrive folder URL
-    folder_id = "YOUR_FOLDER_ID" 
+    folder_id = "13s9S8oOyCa2IqS6xeXyqdMdxTusQQN_E" 
     query = f"'{folder_id}' in parents and mimeType='application/pdf' and trashed=false"
     
     results = drive_service.files().list(q=query, fields="files(id, name)").execute()
