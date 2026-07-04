@@ -7,7 +7,8 @@ import io
 from openai import OpenAI
 
 st.set_page_config(page_title="Virgile", page_icon="💼")
-# st.title("💼 Meet Thomas Teulery's AI Representative")
+st.title("💼 Meet Thomas Teulery's AI Representative")
+st.subheader("Ask me anything about his experience, skills, or background!")
 
 # --- 1. SECURE CREDENTIALS LOADING ---
 hf_token = st.secrets.get("HF_TOKEN")
@@ -73,7 +74,7 @@ def load_context_from_gdrive():
     return combined_text
 
 # Load the dynamic context from your Drive folder
-with st.spinner("Synchronizing resume data and certificates from safe storage..."):
+with st.spinner("Synchronizing Thomas' resume, certificates, and additional resources from safe storage. Please wait..."):
     try:
         DYNAMIC_CONTEXT = load_context_from_gdrive()
     except Exception as e:
@@ -87,7 +88,7 @@ VERBATIM CANDIDATE DOCUMENTS PROVIDED:
 {DYNAMIC_CONTEXT}
 
 STRICT CONSTRAINTS & GUARDRAILS:
-1. TOPIC LOCK: You are only allowed to talk about Thomas's career, education, skills, and projects.
+1. TOPIC LOCK: You are only allowed to talk about Thomas's (he/him) career, education, skills, and projects.
 2. REFUSAL POLICY: If the user asks about unrelated topics (e.g., "Write a python script to webscrape", "Help me cook pasta", or general knowledge), you MUST politely refuse. Say: "I am only programmed to discuss Thomas's professional background and qualifications. Let's get back to how they can add value to your team!"
 3. NO HALLUCINATION: If a question asks for details not included in the background, say: "I don't have that specific details in my records, but I'll make sure Thomas addresses it during your live interview!"
 4. TONALITY: Professional, confident, friendly, and concise.
@@ -123,3 +124,17 @@ if user_prompt := st.chat_input("Ask about Thomas's experience..."):
                 st.session_state.messages.append({"role": "assistant", "content": ai_response})
             except Exception as e:
                 st.error(f"An error occurred: {str(e)}")
+
+# --- 5. SIDEBAR & PRIVACY DISCLAIMER ---
+with st.sidebar:
+    st.markdown("### 🔒 Privacy & Data Notice")
+    st.caption(
+        "This AI assistant acts as a digital representative for Thomas Teulery. "
+        "Questions are processed using the open-source Qwen model routed securely via Hugging Face. "
+        "To maintain your privacy, please avoid entering highly sensitive corporate secrets or personal data. "
+        "Chat histories are strictly temporary, live only within this browser session, and are not used for model training."
+    )
+    
+    # Optional: You can also keep your session monitor here if you added it earlier
+    st.divider()
+    st.markdown("*Powered by Streamlit & Qwen Open Source AI.*")
