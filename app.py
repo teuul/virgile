@@ -35,38 +35,26 @@ gcp_info = {
 client = OpenAI(base_url="https://router.huggingface.co/v1", api_key=hf_token)
 
 # --- 2. GOOGLE DRIVE INGESTION FUNCTION ---
-@st.cache_resource
+@st.cache_data(ttl="1h")  # Cache data for 1 hour so it doesn't read Drive on every click
 def load_context_from_gdrive():
     creds = service_account.Credentials.from_service_account_info(gcp_info)
     drive_service = build('drive', 'v3', credentials=creds)
     
+    # Locate all PDFs inside your shared Google Drive folder
+    # Note: Replace 'YOUR_FOLDER_ID' with the string of numbers/letters from your GDrive folder URL
     folder_id = "13s9S8oOyCa2IqS6xeXyqdMdxTusQQN_E" 
     query = f"'{folder_id}' in parents and mimeType='application/pdf' and trashed=false"
     
-    # 1. Fetch the file list first
     results = drive_service.files().list(q=query, fields="files(id, name)").execute()
     files = results.get('files', [])
-    total_files = len(files)
     
     combined_text = ""
     
-    # Check if there are actually files to prevent division-by-zero errors
-    if total_files == 0:
-        return "No resume documents found in the source directory."
-
-    # 2. Create the Streamlit Progress Placeholders
-    progress_bar = st.progress(0.0)
-    status_text = st.empty()
-    
-    # 3. Loop through files and incrementally advance the progress bar
-    for index, file in enumerate(files):
+    for file in files:
         file_id = file['id']
         file_name = file['name']
         
-        # Update UI text to show which document is actively downloading
-        status_text.markdown(f"📥 *Downloading and parsing:* `{file_name}`...")
-        
-        # Download file binary bytes
+        # Download file into memory
         request = drive_service.files().get_media(fileId=file_id)
         file_stream = io.BytesIO()
         downloader = MediaIoBaseDownload(file_stream, request)
@@ -74,9 +62,8 @@ def load_context_from_gdrive():
         while not done:
             _, done = downloader.next_chunk()
             
+        # Parse PDF Content
         file_stream.seek(0)
-        
-        # Extract text out of the downloaded PDF
         pdf_reader = pypdf.PdfReader(file_stream)
         file_text = f"\n--- DOCUMENT: {file_name} ---\n"
         for page in pdf_reader.pages:
@@ -84,19 +71,10 @@ def load_context_from_gdrive():
             
         combined_text += file_text
         
-        # Calculate percent math (must float between 0.0 and 1.0)
-        current_progress = float((index + 1) / total_files)
-        progress_bar.progress(current_progress)
-        
-    # 4. Clean up the UI when completely finished
-    status_text.success("✅ System synchronization fully complete! Launching representative...")
-    progress_bar.empty()  # Clear away the progress bar graphic
-    status_text.empty()   # Clear away the text placeholder
-    
     return combined_text
 
 # Load the dynamic context from your Drive folder
-with st.spinner("Synchronizing resume data and certificates from safe storage..."):
+with st.spinner("Synchronizing Thomas' resume, certificates, and additional resources from safe storage. Please wait..."):
     try:
         DYNAMIC_CONTEXT = load_context_from_gdrive()
     except Exception as e:
