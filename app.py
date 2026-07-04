@@ -74,7 +74,7 @@ def load_context_from_gdrive():
     return combined_text
 
 # Load the dynamic context from your Drive folder
-with st.spinner("Synchronizing resume data and certificates from safe storage..."):
+with st.spinner("Synchronizing Thomas' resume, certificates, and additional resources from safe storage. Please wait..."):
     try:
         DYNAMIC_CONTEXT = load_context_from_gdrive()
     except Exception as e:
@@ -124,3 +124,17 @@ if user_prompt := st.chat_input("Ask about Thomas's experience..."):
                 st.session_state.messages.append({"role": "assistant", "content": ai_response})
             except Exception as e:
                 st.error(f"An error occurred: {str(e)}")
+
+# --- 5. SIDEBAR & PRIVACY DISCLAIMER ---
+with st.sidebar:
+    st.markdown("### 🔒 Privacy & Data Notice")
+    st.caption(
+        "This AI assistant acts as a digital representative for Thomas Teulery. "
+        "Questions are processed using the open-source Qwen model routed securely via Hugging Face. "
+        "To maintain your privacy, please avoid entering highly sensitive corporate secrets or personal data. "
+        "Chat histories are strictly temporary, live only within this browser session, and are not used for model training."
+    )
+    
+    # Optional: You can also keep your session monitor here if you added it earlier
+    st.divider()
+    st.markdown("*Powered by Streamlit & Qwen Open Source AI.*")
