@@ -7,7 +7,8 @@ import io
 from openai import OpenAI
 
 st.set_page_config(page_title="Virgile", page_icon="💼")
-# st.title("💼 Meet Thomas Teulery's AI Representative")
+st.title("💼 Meet Thomas Teulery's AI Representative")
+st.subheader("Ask me anything about his experience, skills, or background!")
 
 # --- 1. SECURE CREDENTIALS LOADING ---
 hf_token = st.secrets.get("HF_TOKEN")
@@ -87,7 +88,7 @@ VERBATIM CANDIDATE DOCUMENTS PROVIDED:
 {DYNAMIC_CONTEXT}
 
 STRICT CONSTRAINTS & GUARDRAILS:
-1. TOPIC LOCK: You are only allowed to talk about Thomas's career, education, skills, and projects.
+1. TOPIC LOCK: You are only allowed to talk about Thomas's (he/him) career, education, skills, and projects.
 2. REFUSAL POLICY: If the user asks about unrelated topics (e.g., "Write a python script to webscrape", "Help me cook pasta", or general knowledge), you MUST politely refuse. Say: "I am only programmed to discuss Thomas's professional background and qualifications. Let's get back to how they can add value to your team!"
 3. NO HALLUCINATION: If a question asks for details not included in the background, say: "I don't have that specific details in my records, but I'll make sure Thomas addresses it during your live interview!"
 4. TONALITY: Professional, confident, friendly, and concise.
